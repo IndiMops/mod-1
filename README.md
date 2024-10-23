@@ -1,4 +1,4 @@
-# Program for the 3rd module
+# Program for the 1st module
 
 ### Build
 ```bash
