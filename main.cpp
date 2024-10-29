@@ -3,17 +3,22 @@
 int main() {
     StudentContainer container;
 
-    container.addStudent(std::make_shared<StudentWithGrades>("Alice", 90, "SP-1"));
-    container.addStudent(std::make_shared<StudentWithGrades>("Bob", 85, "SSB-1"));
-    container.addStudent(std::make_shared<StudentWithAbsences>("Charlie"));
+    // Додавання студентів вручну
+    container.addStudent(std::make_shared<StudentWithGrades>("John Doe", 85, "Math"));
+    container.addStudent(std::make_shared<StudentWithAttendance>("Jane Smith", 90, "Science", 3));
 
+    // Відображення студентів
+    std::cout << "Students added manually:" << std::endl;
+    container.displayStudents();
+
+    // Запис студентів у файл
     container.writeToFile("students.csv");
 
     StudentContainer newContainer;
     newContainer.readFromFile("students.csv");
-    newContainer.displayStudents();
 
-    newContainer.updateAbsences("Charlie", 3, 2);
+    // Відображення студентів, зчитаних з файлу
+    std::cout << "\nStudents read from file:" << std::endl;
     newContainer.displayStudents();
 
     return 0;
