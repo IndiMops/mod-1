@@ -1,6 +1,6 @@
 #include "StudentGrades.h"
 
-// Реалізація методу fromCSV
+// Реалізація методу fromCSV для StudentWithGrades
 std::shared_ptr<StudentWithGrades> StudentWithGrades::fromCSV(const std::string& csvLine) {
     std::stringstream ss(csvLine);
     std::string name, className, gradeStr;
@@ -14,6 +14,21 @@ std::shared_ptr<StudentWithGrades> StudentWithGrades::fromCSV(const std::string&
     return std::make_shared<StudentWithGrades>(name, grade, className);
 }
 
+// Реалізація методу fromCSV для StudentWithAbsences
+std::shared_ptr<StudentWithAbsences> StudentWithAbsences::fromCSV(const std::string& csvLine) {
+    std::stringstream ss(csvLine);
+    std::string name, unexcusedAbsencesStr, excusedAbsencesStr;
+    int unexcusedAbsences, excusedAbsences;
+
+    std::getline(ss, name, ',');
+    std::getline(ss, unexcusedAbsencesStr, ',');
+    std::getline(ss, excusedAbsencesStr, ',');
+
+    unexcusedAbsences = std::stoi(unexcusedAbsencesStr);
+    excusedAbsences = std::stoi(excusedAbsencesStr);
+    return std::make_shared<StudentWithAbsences>(name, unexcusedAbsences, excusedAbsences);
+}
+
 void StudentContainer::addStudent(const std::shared_ptr<Student>& student) {
     if (currentIndex < students.size()) {
         students[currentIndex] = student;
@@ -23,7 +38,7 @@ void StudentContainer::addStudent(const std::shared_ptr<Student>& student) {
     }
 }
 
-void StudentContainer::readFromFile(const std::string& filename) {
+void StudentContainer::readFromFile(const std::string filename) {
     std::ifstream infile(filename);
     if (!infile) {
         std::cerr << "Error opening file for reading" << std::endl;
@@ -39,7 +54,12 @@ void StudentContainer::readFromFile(const std::string& filename) {
 
     // Зчитуємо дані
     while (std::getline(infile, line)) {
-        addStudent(StudentWithGrades::fromCSV(line));
+        // Додати логіку для визначення типу студента
+        if (line.find("Grade") != std::string::npos) {
+            addStudent(StudentWithGrades::fromCSV(line));
+        } else {
+            addStudent(StudentWithAbsences::fromCSV(line));
+        }
     }
 }
 
@@ -63,4 +83,16 @@ void StudentContainer::displayStudents() const {
     for (int i = 0; i < currentIndex; ++i) {
         students[i]->display();
     }
+}
+
+void StudentContainer::updateAbsences(const std::string& name, int unexcusedAbsences, int excusedAbsences) {
+    for (int i = 0; i < currentIndex; ++i) {
+        auto studentWithAbsences = std::dynamic_pointer_cast<StudentWithAbsences>(students[i]);
+        if (studentWithAbsences && studentWithAbsences->getName() == name) {
+            studentWithAbsences->setUnexcusedAbsences(unexcusedAbsences);
+            studentWithAbsences->setExcusedAbsences(excusedAbsences);
+            return;
+        }
+    }
+    std::cout << "Student not found!" << std::endl;
 }
